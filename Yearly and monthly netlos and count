@@ -1176,3 +1176,54 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
   positive_df['Year'] = pd.to_datetime(positive_df['Date']).dt.year
 
  
+#### box plot
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Assuming df is your dataframe
+df['Year'] = df['Date'].dt.year
+
+# Filter out negative Net Loss Amount
+positive_df = df[df['Net Loss Amount'] > 0]
+
+# Calculate Q1 (25th percentile) and Q3 (75th percentile)
+Q1 = positive_df['Net Loss Amount'].quantile(0.25)
+Q3 = positive_df['Net Loss Amount'].quantile(0.75)
+
+# Calculate IQR (Interquartile Range)
+IQR = Q3 - Q1
+
+# Define lower and upper bounds for outliers
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+# Identify outliers
+outliers = positive_df[(positive_df['Net Loss Amount'] < lower_bound) | (positive_df['Net Loss Amount'] > upper_bound)]
+
+# Option 1: Remove outliers
+filtered_df = positive_df[(positive_df['Net Loss Amount'] >= lower_bound) & (positive_df['Net Loss Amount'] <= upper_bound)]
+
+# Option 2: Cap the outliers (set them to the bounds)
+# filtered_df['Net Loss Amount'] = np.where(filtered_df['Net Loss Amount'] > upper_bound, upper_bound, filtered_df['Net Loss Amount'])
+# filtered_df['Net Loss Amount'] = np.where(filtered_df['Net Loss Amount'] < lower_bound, lower_bound, filtered_df['Net Loss Amount'])
+
+# Print number of outliers
+print(f"Number of outliers: {outliers.shape[0]}")
+
+# Plot: Box plot for Net Loss Amount by Year (after handling outliers)
+plt.figure(figsize=(10, 6))
+
+# Create box plot
+sns.boxplot(data=filtered_df, x='Year', y='Net Loss Amount', color='skyblue', fliersize=6)
+
+# Title and labels
+plt.title('Yearly Net Loss Amount (Box Plot After Handling Outliers)', fontsize=14)
+plt.xlabel('Year', fontsize=12)
+plt.ylabel('Net Loss Amount (USD)', fontsize=12)
+
+# Show plot
+plt.tight_layout()
+plt.show()
+
