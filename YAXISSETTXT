@@ -1679,3 +1679,372 @@ for business_line in business_lines:
         # Adjust layout and display
         plt.tight_layout()
         plt.show()
+###############pie chart for all business line  with legend percent
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 1000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+event_types = [
+    "Fraud", "System Failure", "Theft", "Compliance", "Natural Disaster",
+    "Cyber Attack", "Market Risk", "Operational Error", "Vendor Risk", "Regulatory Violation"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Event Type": np.random.choice(event_types, num_records),
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Event Description": np.random.choice(
+        [
+            "Unauthorized transaction", "Server downtime", "Lost assets", 
+            "Regulatory fines", "Data breach", "Network failure", 
+            "Inadequate compliance", "Financial misstatement", 
+            "Supplier issues", "Internal fraud"
+        ],
+        num_records
+    ),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Add Year and Month columns
+df['Year'] = df['Date'].dt.year
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Business Line, Event Type, and aggregate Event Count and Net Loss Amount
+grouped = df.groupby(['Business Line', 'Event Type']).agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Fixed color mapping for each event type (manually set)
+event_type_colors = {
+    "Fraud": "skyblue", 
+    "System Failure": "lightgreen", 
+    "Theft": "lightcoral", 
+    "Compliance": "lightyellow",
+    "Natural Disaster": "lightpink", 
+    "Cyber Attack": "lightgrey", 
+    "Market Risk": "lightsalmon",
+    "Operational Error": "lightseagreen", 
+    "Vendor Risk": "lightskyblue", 
+    "Regulatory Violation": "lightsteelblue"
+}
+
+# Iterate through each business line and generate pie charts for Event Count and Net Loss Amount
+business_lines = grouped['Business Line'].unique()
+for business_line in business_lines:
+    business_line_data = grouped[grouped['Business Line'] == business_line]
+
+    # Prepare data for pie charts
+    labels = business_line_data['Event Type']
+    sizes_event = business_line_data['Event Count']
+    sizes_loss = business_line_data['Net Loss Amount']
+
+    # Pie chart for Event Count with fixed colors based on Event Type
+    fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+
+    # Pie chart for Event Count
+    wedges_event, texts_event, autotexts_event = axes[0].pie(
+        sizes_event, labels=labels, autopct='%1.1f%%', 
+        startangle=90, colors=[event_type_colors[event] for event in labels],
+        textprops=dict(color="w")
+    )
+    axes[0].set_title(f"Event Count Distribution\n{business_line}", fontsize=12, fontweight='bold')
+
+    # Pie chart for Net Loss Amount with fixed colors based on Event Type
+    wedges_loss, texts_loss, autotexts_loss = axes[1].pie(
+        sizes_loss, labels=labels, autopct='%1.1f%%', 
+        startangle=90, colors=[event_type_colors[event] for event in labels],
+        textprops=dict(color="w")
+    )
+    axes[1].set_title(f"Net Loss Amount Distribution\n{business_line}", fontsize=12, fontweight='bold')
+
+    # Add legends with percentages for both pie charts
+    axes[0].legend(wedges_event, [f"{label}: {size/total_event:.1%}" for label, size in zip(labels, sizes_event)], title="Event Types (%)", loc="best", fontsize=10)
+    axes[1].legend(wedges_loss, [f"{label}: {size/total_loss:.1%}" for label, size in zip(labels, sizes_loss)], title="Event Types (%)", loc="best", fontsize=10)
+
+    # Adjust layout and display
+    plt.tight_layout()
+    plt.show()
+
+############ #percent and value in legen
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 1000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+event_types = [
+    "Fraud", "System Failure", "Theft", "Compliance", "Natural Disaster",
+    "Cyber Attack", "Market Risk", "Operational Error", "Vendor Risk", "Regulatory Violation"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Event Type": np.random.choice(event_types, num_records),
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Event Description": np.random.choice(
+        [
+            "Unauthorized transaction", "Server downtime", "Lost assets", 
+            "Regulatory fines", "Data breach", "Network failure", 
+            "Inadequate compliance", "Financial misstatement", 
+            "Supplier issues", "Internal fraud"
+        ],
+        num_records
+    ),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Add Year and Month columns
+df['Year'] = df['Date'].dt.year
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Business Line, Event Type, and aggregate Event Count and Net Loss Amount
+grouped = df.groupby(['Business Line', 'Event Type']).agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Fixed color mapping for each event type (manually set)
+event_type_colors = {
+    "Fraud": "skyblue", 
+    "System Failure": "lightgreen", 
+    "Theft": "lightcoral", 
+    "Compliance": "lightyellow",
+    "Natural Disaster": "lightpink", 
+    "Cyber Attack": "lightgrey", 
+    "Market Risk": "lightsalmon",
+    "Operational Error": "lightseagreen", 
+    "Vendor Risk": "lightskyblue", 
+    "Regulatory Violation": "lightsteelblue"
+}
+
+# Iterate through each business line and generate pie charts for Event Count and Net Loss Amount
+business_lines = grouped['Business Line'].unique()
+for business_line in business_lines:
+    business_line_data = grouped[grouped['Business Line'] == business_line]
+
+    # Prepare data for pie charts
+    labels = business_line_data['Event Type']
+    sizes_event = business_line_data['Event Count']
+    sizes_loss = business_line_data['Net Loss Amount']
+
+    # Calculate total event count and total net loss amount for percentage calculation
+    total_event = sizes_event.sum()
+    total_loss = sizes_loss.sum()
+
+    # Pie chart for Event Count with fixed colors based on Event Type
+    fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+
+    # Pie chart for Event Count
+    wedges_event, texts_event, autotexts_event = axes[0].pie(
+        sizes_event, labels=labels, autopct='%1.1f%%', 
+        startangle=90, colors=[event_type_colors[event] for event in labels],
+        textprops=dict(color="w")
+    )
+    axes[0].set_title(f"Event Count Distribution\n{business_line}", fontsize=12, fontweight='bold')
+
+    # Prepare legend with both value and percentage
+    legend_event = [
+        f"{label}: {size} events ({size/total_event:.1%})"
+        for label, size in zip(labels, sizes_event)
+    ]
+    axes[0].legend(wedges_event, legend_event, title="Event Types", loc="best", fontsize=10)
+
+    # Pie chart for Net Loss Amount with fixed colors based on Event Type
+    wedges_loss, texts_loss, autotexts_loss = axes[1].pie(
+        sizes_loss, labels=labels, autopct='%1.1f%%', 
+        startangle=90, colors=[event_type_colors[event] for event in labels],
+        textprops=dict(color="w")
+    )
+    axes[1].set_title(f"Net Loss Amount Distribution\n{business_line}", fontsize=12, fontweight='bold')
+
+    # Prepare legend with both value and percentage
+    legend_loss = [
+        f"{label}: ${size:.2f} ({size/total_loss:.1%})"
+        for label, size in zip(labels, sizes_loss)
+    ]
+    axes[1].legend(wedges_loss, legend_loss, title="Event Types", loc="best", fontsize=10)
+
+    # Adjust layout and display
+    plt.tight_layout()
+    plt.show()
+###### for event typrs perce and valeu in legedn
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 1000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+event_types = [
+    "Fraud", "System Failure", "Theft", "Compliance", "Natural Disaster",
+    "Cyber Attack", "Market Risk", "Operational Error", "Vendor Risk", "Regulatory Violation"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Event Type": np.random.choice(event_types, num_records),
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Event Description": np.random.choice(
+        [
+            "Unauthorized transaction", "Server downtime", "Lost assets", 
+            "Regulatory fines", "Data breach", "Network failure", 
+            "Inadequate compliance", "Financial misstatement", 
+            "Supplier issues", "Internal fraud"
+        ],
+        num_records
+    ),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Add Year and Month columns
+df['Year'] = df['Date'].dt.year
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Event Type and aggregate Event Count and Net Loss Amount
+grouped = df.groupby(['Event Type']).agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Fixed color mapping for each event type (manually set)
+event_type_colors = {
+    "Fraud": "skyblue", 
+    "System Failure": "lightgreen", 
+    "Theft": "lightcoral", 
+    "Compliance": "lightyellow",
+    "Natural Disaster": "lightpink", 
+    "Cyber Attack": "lightgrey", 
+    "Market Risk": "lightsalmon",
+    "Operational Error": "lightseagreen", 
+    "Vendor Risk": "lightskyblue", 
+    "Regulatory Violation": "lightsteelblue"
+}
+
+# Prepare data for pie charts
+labels = grouped['Event Type']
+sizes_event = grouped['Event Count']
+sizes_loss = grouped['Net Loss Amount']
+
+# Calculate total event count and total net loss amount for percentage calculation
+total_event = sizes_event.sum()
+total_loss = sizes_loss.sum()
+
+# Create pie chart for Event Count with fixed colors
+fig, axes = plt.subplots(1, 2, figsize=(14, 7))
+
+# Pie chart for Event Count
+wedges_event, texts_event, autotexts_event = axes[0].pie(
+    sizes_event, labels=labels, autopct='%1.1f%%', 
+    startangle=90, colors=[event_type_colors[event] for event in labels],
+    textprops=dict(color="w")
+)
+axes[0].set_title(f"Event Count Distribution", fontsize=12, fontweight='bold')
+
+# Prepare legend with both value and percentage for Event Count
+legend_event = [
+    f"{label}: {size} events ({size/total_event:.1%})"
+    for label, size in zip(labels, sizes_event)
+]
+axes[0].legend(wedges_event, legend_event, title="Event Types", loc="best", fontsize=10)
+
+# Pie chart for Net Loss Amount with fixed colors
+wedges_loss, texts_loss, autotexts_loss = axes[1].pie(
+    sizes_loss, labels=labels, autopct='%1.1f%%', 
+    startangle=90, colors=[event_type_colors[event] for event in labels],
+    textprops=dict(color="w")
+)
+axes[1].set_title(f"Net Loss Amount Distribution", fontsize=12, fontweight='bold')
+
+# Prepare legend with both value and percentage for Net Loss Amount
+legend_loss = [
+    f"{label}: ${size:.2f} ({size/total_loss:.1%})"
+    for label, size in zip(labels, sizes_loss)
+]
+axes[1].legend(wedges_loss, legend_loss, title="Event Types", loc="best", fontsize=10)
+
+# Adjust layout and display
+plt.tight_layout()
+plt.show()
