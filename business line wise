@@ -1,0 +1,413 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 1000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Business Line
+grouped_business = df.groupby('Business Line').agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped_business.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Calculate percentages
+grouped_business['Event Count %'] = (grouped_business['Event Count'] / grouped_business['Event Count'].sum()) * 100
+grouped_business['Net Loss %'] = (grouped_business['Net Loss Amount'] / grouped_business['Net Loss Amount'].sum()) * 100
+
+# Plot Event Counts
+fig, ax1 = plt.subplots(figsize=(12, 7))
+bars_event = ax1.bar(
+    grouped_business['Business Line'], 
+    grouped_business['Event Count'], 
+    color='steelblue', alpha=0.8, label="Event Count"
+)
+
+# Add values and percentages for Event Counts
+for bar, count, pct in zip(bars_event, grouped_business['Event Count'], grouped_business['Event Count %']):
+    ax1.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 5, 
+        f"{count}\n({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black'
+    )
+
+ax1.set_title('Event Counts by Business Line', fontsize=14, fontweight='bold')
+ax1.set_xlabel('Business Line', fontsize=12)
+ax1.set_ylabel('Event Counts', fontsize=12)
+ax1.set_xticklabels(grouped_business['Business Line'], rotation=45, ha='right')
+ax1.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+# Plot Net Loss Amount
+fig, ax2 = plt.subplots(figsize=(12, 7))
+bars_loss = ax2.bar(
+    grouped_business['Business Line'], 
+    grouped_business['Net Loss Amount'], 
+    color='coral', alpha=0.8, label="Net Loss Amount"
+)
+
+# Add values and percentages for Net Loss Amount
+for bar, loss, pct in zip(bars_loss, grouped_business['Net Loss Amount'], grouped_business['Net Loss %']):
+    ax2.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 5000, 
+        f"{loss:.1f}\n({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black'
+    )
+
+ax2.set_title('Net Loss Amount by Business Line', fontsize=14, fontweight='bold')
+ax2.set_xlabel('Business Line', fontsize=12)
+ax2.set_ylabel('Net Loss Amount ($)', fontsize=12)
+ax2.set_xticklabels(grouped_business['Business Line'], rotation=45, ha='right')
+ax2.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+##############333
+vale and percentage in box
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 1000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Business Line
+grouped_business = df.groupby('Business Line').agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped_business.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Calculate percentages
+grouped_business['Event Count %'] = (grouped_business['Event Count'] / grouped_business['Event Count'].sum()) * 100
+grouped_business['Net Loss %'] = (grouped_business['Net Loss Amount'] / grouped_business['Net Loss Amount'].sum()) * 100
+
+# Plot Event Counts
+fig, ax1 = plt.subplots(figsize=(12, 7))
+bars_event = ax1.bar(
+    grouped_business['Business Line'], 
+    grouped_business['Event Count'], 
+    color='steelblue', alpha=0.8, label="Event Count"
+)
+
+# Add values and percentages for Event Counts in a box
+for bar, count, pct in zip(bars_event, grouped_business['Event Count'], grouped_business['Event Count %']):
+    ax1.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 5, 
+        f"{count}\n({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black',
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+ax1.set_title('Event Counts by Business Line', fontsize=14, fontweight='bold')
+ax1.set_xlabel('Business Line', fontsize=12)
+ax1.set_ylabel('Event Counts', fontsize=12)
+ax1.set_xticklabels(grouped_business['Business Line'], rotation=45, ha='right')
+ax1.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+# Plot Net Loss Amount
+fig, ax2 = plt.subplots(figsize=(12, 7))
+bars_loss = ax2.bar(
+    grouped_business['Business Line'], 
+    grouped_business['Net Loss Amount'], 
+    color='coral', alpha=0.8, label="Net Loss Amount"
+)
+
+# Add values and percentages for Net Loss Amount in a box
+for bar, loss, pct in zip(bars_loss, grouped_business['Net Loss Amount'], grouped_business['Net Loss %']):
+    ax2.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 5000, 
+        f"{loss:.1f}\n({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black',
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+ax2.set_title('Net Loss Amount by Business Line', fontsize=14, fontweight='bold')
+ax2.set_xlabel('Business Line', fontsize=12)
+ax2.set_ylabel('Net Loss Amount ($)', fontsize=12)
+ax2.set_xticklabels(grouped_business['Business Line'], rotation=45, ha='right')
+ax2.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+
+
+#######for event types in box
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 10000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+event_types = [
+    "Fraud", "System Failure", "Theft", "Compliance", "Natural Disaster",
+    "Cyber Attack", "Market Risk", "Operational Error", "Vendor Risk", "Regulatory Violation"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Event Type": np.random.choice(event_types, num_records),
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Event Type
+grouped_event = df.groupby('Event Type').agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped_event.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Calculate percentages
+grouped_event['Event Count %'] = (grouped_event['Event Count'] / grouped_event['Event Count'].sum()) * 100
+grouped_event['Net Loss %'] = (grouped_event['Net Loss Amount'] / grouped_event['Net Loss Amount'].sum()) * 100
+
+# Plot Event Counts
+fig, ax1 = plt.subplots(figsize=(12, 7))
+bars_event = ax1.bar(
+    grouped_event['Event Type'], 
+    grouped_event['Event Count'], 
+    color='steelblue', alpha=0.8, label="Event Count"
+)
+
+# Add values and percentages for Event Counts in a box
+for bar, count, pct in zip(bars_event, grouped_event['Event Count'], grouped_event['Event Count %']):
+    ax1.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 500, 
+        f"{count}\n({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black',
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+ax1.set_title('Event Counts by Event Type', fontsize=14, fontweight='bold')
+ax1.set_xlabel('Event Type', fontsize=12)
+ax1.set_ylabel('Event Counts', fontsize=12)
+ax1.set_xticklabels(grouped_event['Event Type'], rotation=45, ha='right')
+ax1.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+# Plot Net Loss Amount
+fig, ax2 = plt.subplots(figsize=(12, 7))
+bars_loss = ax2.bar(
+    grouped_event['Event Type'], 
+    grouped_event['Net Loss Amount'], 
+    color='coral', alpha=0.8, label="Net Loss Amount"
+)
+
+# Add values and percentages for Net Loss Amount in a box
+for bar, loss, pct in zip(bars_loss, grouped_event['Net Loss Amount'], grouped_event['Net Loss %']):
+    ax2.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 5000, 
+        f"{loss:.1f}\n({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black',
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+ax2.set_title('Net Loss Amount by Event Type', fontsize=14, fontweight='bold')
+ax2.set_xlabel('Event Type', fontsize=12)
+ax2.set_ylabel('Net Loss Amount ($)', fontsize=12)
+ax2.set_xticklabels(grouped_event['Event Type'], rotation=45, ha='right')
+ax2.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+########### without box for venet types
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Function to generate random dates
+def random_dates(start, end, n=10):
+    return [start + timedelta(days=np.random.randint(0, (end - start).days)) for _ in range(n)]
+
+# Parameters
+num_records = 10000
+start_date = datetime.now() - timedelta(days=4*365)
+end_date = datetime.now()
+
+# Expanded categories
+business_lines = [
+    "Retail", "Corporate Banking", "Investment Banking", "Insurance",
+    "Wealth Management", "Asset Management", "Private Banking",
+    "Credit Card Services", "Mortgage Lending", "Financial Advisory"
+]
+
+event_types = [
+    "Fraud", "System Failure", "Theft", "Compliance", "Natural Disaster",
+    "Cyber Attack", "Market Risk", "Operational Error", "Vendor Risk", "Regulatory Violation"
+]
+
+# Generate data
+data = {
+    "Date": random_dates(start_date, end_date, num_records),
+    "Unique Event ID": [f"EID{str(i).zfill(5)}" for i in range(num_records)],
+    "Event Type": np.random.choice(event_types, num_records),
+    "Business Line": np.random.choice(business_lines, num_records),
+    "Net Loss Amount": np.random.choice(
+        [np.random.uniform(-10000, 0) for _ in range(num_records // 2)] + 
+        [np.random.uniform(0, 10000) for _ in range(num_records // 2)],
+        num_records
+    )
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Filter negative Net Loss Amount values
+df = df[df['Net Loss Amount'] > 0]
+
+# Group data by Event Type
+grouped_event = df.groupby('Event Type').agg({
+    'Unique Event ID': 'count',  # Event Count
+    'Net Loss Amount': 'sum'    # Net Loss Amount
+}).reset_index()
+grouped_event.rename(columns={'Unique Event ID': 'Event Count'}, inplace=True)
+
+# Calculate percentages
+grouped_event['Event Count %'] = (grouped_event['Event Count'] / grouped_event['Event Count'].sum()) * 100
+grouped_event['Net Loss %'] = (grouped_event['Net Loss Amount'] / grouped_event['Net Loss Amount'].sum()) * 100
+
+# Plot Event Counts
+fig, ax1 = plt.subplots(figsize=(12, 7))
+bars_event = ax1.bar(
+    grouped_event['Event Type'], 
+    grouped_event['Event Count'], 
+    color='steelblue', alpha=0.8, label="Event Count"
+)
+
+# Add values and percentages for Event Counts
+for bar, count, pct in zip(bars_event, grouped_event['Event Count'], grouped_event['Event Count %']):
+    ax1.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 500, 
+        f"{count} ({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black'
+    )
+
+ax1.set_title('Event Counts by Event Type', fontsize=14, fontweight='bold')
+ax1.set_xlabel('Event Type', fontsize=12)
+ax1.set_ylabel('Event Counts', fontsize=12)
+ax1.set_xticklabels(grouped_event['Event Type'], rotation=45, ha='right')
+ax1.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
+# Plot Net Loss Amount
+fig, ax2 = plt.subplots(figsize=(12, 7))
+bars_loss = ax2.bar(
+    grouped_event['Event Type'], 
+    grouped_event['Net Loss Amount'], 
+    color='coral', alpha=0.8, label="Net Loss Amount"
+)
+
+# Add values and percentages for Net Loss Amount
+for bar, loss, pct in zip(bars_loss, grouped_event['Net Loss Amount'], grouped_event['Net Loss %']):
+    ax2.text(
+        bar.get_x() + bar.get_width()/2, bar.get_height() + 5000, 
+        f"{loss:.1f} ({pct:.1f}%)", ha='center', va='bottom', fontsize=10, color='black'
+    )
+
+ax2.set_title('Net Loss Amount by Event Type', fontsize=14, fontweight='bold')
+ax2.set_xlabel('Event Type', fontsize=12)
+ax2.set_ylabel('Net Loss Amount ($)', fontsize=12)
+ax2.set_xticklabels(grouped_event['Event Type'], rotation=45, ha='right')
+ax2.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.tight_layout()
+plt.show()
+
