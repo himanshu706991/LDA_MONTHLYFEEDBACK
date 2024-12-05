@@ -1,3 +1,245 @@
+#for all yaers scatter plot wil value without box
+# Calculate min and max values for Event Count and Total Net Loss
+min_event_count = aggregated_data['Event_Count'].min()
+max_event_count = aggregated_data['Event_Count'].max()
+min_net_loss = aggregated_data['Total_Net_Loss'].min()
+max_net_loss = aggregated_data['Total_Net_Loss'].max()
+
+# Scatter plot with manually set y-axis limits
+fig, ax1 = plt.subplots(figsize=(12, 8))
+
+# Scatter plot for Event Count
+sns.scatterplot(
+    data=aggregated_data,
+    x="Business Line",
+    y="Event_Count",
+    ax=ax1,
+    palette="Set2",
+    s=150,  # Size of scatter points
+    edgecolor='black',  # Adding a border to make points stand out
+    label='Event Count'
+)
+ax1.set_xlabel("Business Line", fontsize=14)
+ax1.set_ylabel("Event Count", fontsize=14)
+ax1.tick_params(axis='y')
+ax1.set_xticklabels(aggregated_data["Business Line"], rotation=45, ha="right")
+
+# Manually set y-axis limits for Event Count (based on min and max values)
+ax1.set_ylim(min_event_count - 100, max_event_count + 100)
+
+# Create a second y-axis for Total Net Loss
+ax2 = ax1.twinx()
+sns.scatterplot(
+    data=aggregated_data,
+    x="Business Line",
+    y="Total_Net_Loss",
+    ax=ax2,
+    color='darkorange',
+    s=150,  # Size of scatter points
+    edgecolor='black',  # Border to make the points visible
+    label='Total Net Loss'
+)
+ax2.set_ylabel("Total Net Loss", fontsize=14)
+ax2.tick_params(axis='y')
+
+# Manually set y-axis limits for Total Net Loss (based on min and max values)
+ax2.set_ylim(min_net_loss - 1000, max_net_loss + 1000)
+
+# Add values on each point for Event Count
+for i, row in aggregated_data.iterrows():
+    ax1.text(
+        x=row["Business Line"], 
+        y=row["Event_Count"], 
+        s=str(int(row["Event_Count"])), 
+        color='black',  # Text color for visibility
+        ha='center', 
+        va='bottom', 
+        fontsize=10
+    )
+
+# Add values on each point for Total Net Loss
+for i, row in aggregated_data.iterrows():
+    ax2.text(
+        x=row["Business Line"], 
+        y=row["Total_Net_Loss"], 
+        s=f"{int(row['Total_Net_Loss']):,}", 
+        color='black',  # Text color for visibility
+        ha='center', 
+        va='bottom', 
+        fontsize=10
+    )
+
+# Title and layout adjustments
+plt.title("Total Event Count and Total Net Loss by Business Line (4 Years)", fontsize=16, fontweight="bold")
+plt.tight_layout()
+
+# Add legends
+ax1.legend(loc='upper left', fontsize=10, title="Metrics", bbox_to_anchor=(1.05, 1), frameon=False, title_fontsize=12, labelspacing=1.5)
+ax2.legend(loc='upper left', fontsize=10, title="Metrics", bbox_to_anchor=(1.05, 0.85), frameon=False, title_fontsize=12, labelspacing=1.5)
+
+plt.show()
+#################################33 with box above the point +20
+# Scatter plot with manually set y-axis limits and label boxes
+fig, ax1 = plt.subplots(figsize=(12, 8))
+
+# Scatter plot for Event Count
+sns.scatterplot(
+    data=aggregated_data,
+    x="Business Line",
+    y="Event_Count",
+    ax=ax1,
+    palette="Set2",
+    s=150,  # Size of scatter points
+    edgecolor='black',  # Adding a border to make points stand out
+    label='Event Count'
+)
+ax1.set_xlabel("Business Line", fontsize=14)
+ax1.set_ylabel("Event Count", fontsize=14)
+ax1.tick_params(axis='y')
+ax1.set_xticklabels(aggregated_data["Business Line"], rotation=45, ha="right")
+
+# Manually set y-axis limits for Event Count (based on min and max values)
+ax1.set_ylim(min_event_count - 100, max_event_count + 100)
+
+# Create a second y-axis for Total Net Loss
+ax2 = ax1.twinx()
+sns.scatterplot(
+    data=aggregated_data,
+    x="Business Line",
+    y="Total_Net_Loss",
+    ax=ax2,
+    color='darkorange',
+    s=150,  # Size of scatter points
+    edgecolor='black',  # Border to make the points visible
+    label='Total Net Loss'
+)
+ax2.set_ylabel("Total Net Loss", fontsize=14)
+ax2.tick_params(axis='y')
+
+# Manually set y-axis limits for Total Net Loss (based on min and max values)
+ax2.set_ylim(min_net_loss - 1000, max_net_loss + 1000)
+
+# Add values on each point for Event Count inside a box (shifted upwards slightly)
+for i, row in aggregated_data.iterrows():
+    ax1.text(
+        x=row["Business Line"], 
+        y=row["Event_Count"] + 20,  # Shift the label 20 units above the point
+        s=str(int(row["Event_Count"])), 
+        color='black',  # Text color for visibility
+        ha='center', 
+        va='bottom', 
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+# Add values on each point for Total Net Loss inside a box (shifted upwards slightly)
+for i, row in aggregated_data.iterrows():
+    ax2.text(
+        x=row["Business Line"], 
+        y=row["Total_Net_Loss"] + 200,  # Shift the label 200 units above the point
+        s=f"{int(row['Total_Net_Loss']):,}", 
+        color='black',  # Text color for visibility
+        ha='center', 
+        va='bottom', 
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+# Title and layout adjustments
+plt.title("Total Event Count and Total Net Loss by Business Line (4 Years)", fontsize=16, fontweight="bold")
+plt.tight_layout()
+
+# Add legends
+ax1.legend(loc='upper left', fontsize=10, title="Metrics", bbox_to_anchor=(1.05, 1), frameon=False, title_fontsize=12, labelspacing=1.5)
+ax2.legend(loc='upper left', fontsize=10, title="Metrics", bbox_to_anchor=(1.05, 0.85), frameon=False, title_fontsize=12, labelspacing=1.5)
+
+plt.show()
+
+##############33 on the points
+# Scatter plot with manually set y-axis limits and label boxes
+fig, ax1 = plt.subplots(figsize=(12, 8))
+
+# Scatter plot for Event Count
+sns.scatterplot(
+    data=aggregated_data,
+    x="Business Line",
+    y="Event_Count",
+    ax=ax1,
+    palette="Set2",
+    s=150,  # Size of scatter points
+    edgecolor='black',  # Adding a border to make points stand out
+    label='Event Count'
+)
+ax1.set_xlabel("Business Line", fontsize=14)
+ax1.set_ylabel("Event Count", fontsize=14)
+ax1.tick_params(axis='y')
+ax1.set_xticklabels(aggregated_data["Business Line"], rotation=45, ha="right")
+
+# Manually set y-axis limits for Event Count (based on min and max values)
+ax1.set_ylim(min_event_count - 100, max_event_count + 100)
+
+# Create a second y-axis for Total Net Loss
+ax2 = ax1.twinx()
+sns.scatterplot(
+    data=aggregated_data,
+    x="Business Line",
+    y="Total_Net_Loss",
+    ax=ax2,
+    color='darkorange',
+    s=150,  # Size of scatter points
+    edgecolor='black',  # Border to make the points visible
+    label='Total Net Loss'
+)
+ax2.set_ylabel("Total Net Loss", fontsize=14)
+ax2.tick_params(axis='y')
+
+# Manually set y-axis limits for Total Net Loss (based on min and max values)
+ax2.set_ylim(min_net_loss - 1000, max_net_loss + 1000)
+
+# Add values on each point for Event Count inside a box
+for i, row in aggregated_data.iterrows():
+    ax1.text(
+        x=row["Business Line"], 
+        y=row["Event_Count"], 
+        s=str(int(row["Event_Count"])), 
+        color='black',  # Text color for visibility
+        ha='center', 
+        va='bottom', 
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+# Add values on each point for Total Net Loss inside a box
+for i, row in aggregated_data.iterrows():
+    ax2.text(
+        x=row["Business Line"], 
+        y=row["Total_Net_Loss"], 
+        s=f"{int(row['Total_Net_Loss']):,}", 
+        color='black',  # Text color for visibility
+        ha='center', 
+        va='bottom', 
+        fontsize=10,
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+    )
+
+# Title and layout adjustments
+plt.title("Total Event Count and Total Net Loss by Business Line (4 Years)", fontsize=16, fontweight="bold")
+plt.tight_layout()
+
+# Add legends
+ax1.legend(loc='upper left', fontsize=10, title="Metrics", bbox_to_anchor=(1.05, 1), frameon=False, title_fontsize=12, labelspacing=1.5)
+ax2.legend(loc='upper left', fontsize=10, title="Metrics", bbox_to_anchor=(1.05, 0.85), frameon=False, title_fontsize=12, labelspacing=1.5)
+
+plt.show()
+
+
+
+
+
+######3
+
+
+
 #sacttered plot values with
 import pandas as pd
 import numpy as np
