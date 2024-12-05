@@ -1,4 +1,36 @@
+## ####
+this fo position of box 
+To change the position of the label box for each bubble in your chart, you can adjust the ha (horizontal alignment) and va (vertical alignment) parameters in the plt.text function, along with modifying the x and y coordinates.
 
+Here’s an explanation of the relevant parameters and how to adjust them:
+
+ha and va Options:
+
+ha (horizontal alignment): Use values like 'left', 'center', or 'right'.
+va (vertical alignment): Use values like 'top', 'center', or 'bottom'.
+Offset the Text Position:
+
+Adjust the x and y coordinates of the label by adding or subtracting small values to sorted_df['Index'].iloc[i] and sorted_df['Net Loss Amount'].iloc[i].
+Here's an updated version of your code with an offset to position the labels slightly above the bubbles:
+
+python
+Copy code
+for i in range(len(sorted_df)):
+    plt.text(
+        sorted_df['Index'].iloc[i],
+        sorted_df['Net Loss Amount'].iloc[i] + 200,  # Offset vertically
+        sorted_df['Business Line'].iloc[i],  # Add Business Line here
+        ha='center',  # Horizontal alignment
+        va='bottom',  # Vertical alignment
+        fontsize=8,
+        color='black',
+        bbox=dict(boxstyle='round,pad=0.3', edgecolor='black', facecolor='white', alpha=0.8)
+    )
+Explanation:
+sorted_df['Net Loss Amount'].iloc[i] + 200: Moves the label slightly above the bubble by adding a vertical offset.
+ha='center' and va='bottom': Centers the text horizontally and aligns it at the bottom of the bounding box.
+Feel free to adjust the offset values to achieve your desired label placement.
+#####
 #data set
 import pandas as pd
 import numpy as np
