@@ -1,0 +1,220 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Sample data creation
+data = {
+    'Business Line': ['Retail', 'Insurance', 'Telecom', 'Finance', 'Healthcare', 'Manufacturing', 'Technology'],
+    'Event Net Loss Amount': [50000, 30000, 25000, 40000, 15000, 20000, 35000],
+    'Event Type': ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+}
+df = pd.DataFrame(data)
+
+# Calculate the total loss and event frequency for each business line
+business_line_summary = df.groupby('Business Line').agg(
+    Total_Loss=('Event Net Loss Amount', 'sum'),
+    Event_Frequency=('Event Type', 'count')
+).reset_index()
+
+# Sort the data by Total Loss (optional)
+business_line_summary = business_line_summary.sort_values(by='Total_Loss', ascending=False)
+
+# Manually define colors for each business line using a dictionary
+business_line_colors = {
+    'Retail': '#FF9999',
+    'Insurance': '#66B3FF',
+    'Telecom': '#99FF99',
+    'Finance': '#FFCC99',
+    'Healthcare': '#FF9966',
+    'Manufacturing': '#FF6600',
+    'Technology': '#CCFF33'
+    # Add more business lines and their colors as needed
+}
+
+# Create the figure with two subplots: one for Total Loss and one for Event Frequency
+fig, axs = plt.subplots(1, 2, figsize=(18, 8))
+
+# Plot the first pie chart for Total Loss
+wedges1, texts1, autotexts1 = axs[0].pie(
+    business_line_summary['Total_Loss'],                # Data for each business line (Total Loss)
+    labels=business_line_summary['Business Line'],      # Business line names
+    autopct='%1.1f%%',                                  # Display percentage labels
+    startangle=90,                                      # Start angle for the chart
+    colors=[business_line_colors[b] for b in business_line_summary['Business Line']],  # Color from the dictionary
+    textprops={'color': 'black', 'fontsize': 10, 'fontweight': 'bold'},  # Label text properties
+    wedgeprops={'edgecolor': None}                      # Remove border lines
+)
+
+# Title for the Total Loss chart
+axs[0].set_title("Pie Chart of Total Loss by Business Line", fontsize=14)
+
+# Plot the second pie chart for Event Frequency
+wedges2, texts2, autotexts2 = axs[1].pie(
+    business_line_summary['Event_Frequency'],           # Data for each business line (Event Frequency)
+    labels=business_line_summary['Business Line'],      # Business line names
+    autopct='%1.1f%%',                                  # Display percentage labels
+    startangle=90,                                      # Start angle for the chart
+    colors=[business_line_colors[b] for b in business_line_summary['Business Line']],  # Color from the dictionary
+    textprops={'color': 'black', 'fontsize': 10, 'fontweight': 'bold'},  # Label text properties
+    wedgeprops={'edgecolor': None}                      # Remove border lines
+)
+
+# Title for the Event Frequency chart
+axs[1].set_title("Pie Chart of Event Frequency by Business Line", fontsize=14)
+
+# Add figure names below the pie charts
+fig.text(0.25, 0.01, "Figure 1: Distribution of Total Loss by Business Line", ha='center', fontsize=12, wrap=True)
+fig.text(0.75, 0.01, "Figure 2: Distribution of Event Frequency by Business Line", ha='center', fontsize=12, wrap=True)
+
+# Adjust layout to avoid overlap
+plt.tight_layout()
+plt.show()
+
+###########
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Sample data for testing
+data = {
+    'Business Line': ['Retail', 'Corporate Banking', 'Investment Banking', 'Other Small Line 1', 'Other Small Line 2'],
+    'Total Loss': [50000, 120000, 80000, 2000, 1500],
+    'Event Frequency': [15, 25, 20, 2, 3],
+    'Color': ['#FF9999', '#66B3FF', '#99FF99', '#FFD700', '#8B008B']
+}
+business_line_summary = pd.DataFrame(data)
+
+# Threshold for grouping small categories
+threshold = 0.01  # 1%
+
+# Calculate the percentage distribution
+business_line_summary['Percentage'] = (
+    business_line_summary['Total Loss'] / business_line_summary['Total Loss'].sum()
+)
+
+# Group small percentages into "Other"
+small_categories = business_line_summary[business_line_summary['Percentage'] < threshold]
+other_total_loss = small_categories['Total Loss'].sum()
+
+# Filter large categories
+large_categories = business_line_summary[business_line_summary['Percentage'] >= threshold]
+
+# Add "Other" category
+large_categories = pd.concat(
+    [
+        large_categories,
+        pd.DataFrame({
+            'Business Line': ['Other'],
+            'Total Loss': [other_total_loss],
+            'Event Frequency': [small_categories['Event Frequency'].sum()],
+            'Color': ['#D3D3D3'],  # Grey for "Other"
+            'Percentage': [other_total_loss / business_line_summary['Total Loss'].sum()]
+        })
+    ],
+    ignore_index=True
+)
+
+# Plot pie chart
+plt.figure(figsize=(10, 8))
+plt.pie(
+    large_categories['Total Loss'],
+    labels=large_categories['Business Line'],
+    autopct=lambda p: f'{p:.1f}%\n({p * large_categories["Total Loss"].sum() / 100:,.0f})',  # Show % and absolute value
+    startangle=90,
+    colors=large_categories['Color'],
+    wedgeprops={'edgecolor': 'black'}
+)
+plt.title("Percentage Distribution of Total Loss by Business Line (Grouped)", fontsize=14)
+plt.tight_layout()
+
+# Add figure name below the graph
+plt.figtext(0.5, 0.01, "Figure 1: Distribution of Total Loss by Business Line", wrap=True, horizontalalignment='center', fontsize=12)
+
+plt.show()
+#########################
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Generate random data
+np.random.seed(42)
+business_lines = ['Retail Banking', 'Corporate Banking', 'Insurance', 'Wealth Management']
+event_types = ['Fraud', 'Operational Error', 'Cybersecurity Breach', 'Natural Disaster']
+
+# Create a random dataset
+num_records = 500
+data = {
+    'Business Line': np.random.choice(business_lines, num_records),
+    'Event Type': np.random.choice(event_types, num_records),
+    'Net Loss Amount': np.random.uniform(1000, 100000, num_records)
+}
+df = pd.DataFrame(data)
+
+# Group data for pie chart analysis
+grouped_data = df.groupby(['Business Line', 'Event Type']).agg({
+    'Net Loss Amount': 'sum',
+    'Event Type': 'count'
+}).rename(columns={'Event Type': 'Frequency'}).reset_index()
+
+# Define subplots layout
+unique_business_lines = df['Business Line'].unique()
+fig, axes = plt.subplots(
+    nrows=len(unique_business_lines) * 2,  # Two charts per business line
+    ncols=1, 
+    figsize=(8, len(unique_business_lines) * 5 * 2)
+)
+
+# Flatten axes if there are multiple rows
+if len(unique_business_lines) > 1:
+    axes = axes.flatten()
+
+# Generate pie charts for each business line
+for i, business_line in enumerate(unique_business_lines):
+    # Filter data for the current business line
+    business_data = grouped_data[grouped_data['Business Line'] == business_line]
+    
+    # Net Loss Distribution Pie Chart
+    net_loss_data = business_data.set_index('Event Type')['Net Loss Amount']
+    ax_net_loss = axes[i * 2]  # First row for Net Loss
+    wedges, texts, autotexts = ax_net_loss.pie(
+        net_loss_data, 
+        labels=net_loss_data.index, 
+        autopct="%1.1f%%", 
+        startangle=140, 
+        colors=sns.color_palette("pastel"), 
+        textprops={'fontsize': 10}
+    )
+    ax_net_loss.set_title(
+        f"Net Loss Distribution for {business_line}", 
+        fontsize=14, fontweight="bold"
+    )
+    ax_net_loss.text(
+        0.5, -1.2, 
+        f"Figure: Net Loss Distribution for {business_line}", 
+        ha="center", fontsize=12, color="black", transform=ax_net_loss.transAxes
+    )
+    
+    # Frequency Distribution Pie Chart
+    frequency_data = business_data.set_index('Event Type')['Frequency']
+    ax_frequency = axes[i * 2 + 1]  # Second row for Frequency
+    wedges, texts, autotexts = ax_frequency.pie(
+        frequency_data, 
+        labels=frequency_data.index, 
+        autopct="%1.1f%%", 
+        startangle=140, 
+        colors=sns.color_palette("Set2"), 
+        textprops={'fontsize': 10}
+    )
+    ax_frequency.set_title(
+        f"Frequency Distribution for {business_line}", 
+        fontsize=14, fontweight="bold"
+    )
+    ax_frequency.text(
+        0.5, -1.2, 
+        f"Figure: Frequency Distribution for {business_line}", 
+        ha="center", fontsize=12, color="black", transform=ax_frequency.transAxes
+    )
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
+
