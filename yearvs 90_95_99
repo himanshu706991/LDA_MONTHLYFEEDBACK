@@ -1,0 +1,173 @@
+# Create three separate DataFrames for VaR at 99%, 95%, and 90%
+data_99 = {
+    "Year": [2021, 2022, 2023, 2024],
+    "Actual Net Loss": [5000, 7500, 8200, 9000],
+    "VaR 99% Net Loss": [6000, 8000, 8500, 9500],
+    "Event Count": [100, 120, 140, 160]
+}
+data_95 = {
+    "Year": [2021, 2022, 2023, 2024],
+    "VaR 95% Net Loss": [5500, 7700, 8300, 9100],
+    "Event Count 95": [100, 120, 140, 160]
+}
+data_90 = {
+    "Year": [2021, 2022, 2023, 2024],
+    "VaR 90% Net Loss": [5200, 7600, 8100, 8900],
+    "Event Count 90": [100, 120, 140, 160]
+}
+
+df_99 = pd.DataFrame(data_99)
+df_95 = pd.DataFrame(data_95)
+df_90 = pd.DataFrame(data_90)
+
+# Merge the DataFrames on 'Year'
+merged_df = df_99.merge(df_95, on='Year').merge(df_90, on='Year')
+
+# Drop duplicate Event Count columns for simplicity
+merged_df = merged_df.drop(columns=["Event Count 95", "Event Count 90"])
+
+# Plotting
+fig, ax1 = plt.subplots(figsize=(12, 6))
+
+# Plot net loss lines on primary y-axis
+ax1.plot(merged_df['Year'], merged_df['Actual Net Loss'], marker='o', label='Actual Net Loss', color='blue')
+ax1.plot(merged_df['Year'], merged_df['VaR 99% Net Loss'], marker='s', label='VaR 99% Net Loss', color='red')
+ax1.plot(merged_df['Year'], merged_df['VaR 95% Net Loss'], marker='^', label='VaR 95% Net Loss', color='green')
+ax1.plot(merged_df['Year'], merged_df['VaR 90% Net Loss'], marker='d', label='VaR 90% Net Loss', color='orange')
+
+# Add labels and grid for primary y-axis
+ax1.set_xlabel('Year', fontsize=12)
+ax1.set_ylabel('Net Loss (in units)', fontsize=12, color='black')
+ax1.tick_params(axis='y', labelcolor='black')
+ax1.grid(visible=True, linestyle='--', alpha=0.6)
+
+# Annotate net loss values
+for index, row in merged_df.iterrows():
+    ax1.text(row['Year'], row['Actual Net Loss'], f"{row['Actual Net Loss']}", color='blue', fontsize=10, ha='center', va='bottom')
+    ax1.text(row['Year'], row['VaR 99% Net Loss'], f"{row['VaR 99% Net Loss']}", color='red', fontsize=10, ha='center', va='bottom')
+    ax1.text(row['Year'], row['VaR 95% Net Loss'], f"{row['VaR 95% Net Loss']}", color='green', fontsize=10, ha='center', va='bottom')
+    ax1.text(row['Year'], row['VaR 90% Net Loss'], f"{row['VaR 90% Net Loss']}", color='orange', fontsize=10, ha='center', va='bottom')
+
+# Create secondary y-axis for Event Count
+ax2 = ax1.twinx()
+ax2.plot(merged_df['Year'], merged_df['Event Count'], marker='x', label='Event Count', color='purple')
+ax2.set_ylabel('Event Count', fontsize=12, color='purple')
+ax2.tick_params(axis='y', labelcolor='purple')
+
+# Annotate event counts
+for index, row in merged_df.iterrows():
+    ax2.text(row['Year'], row['Event Count'], f"{row['Event Count']}", color='purple', fontsize=10, ha='center', va='bottom')
+
+# Add legends
+fig.legend(loc='upper left', bbox_to_anchor=(0.1, 0.9), fontsize=10)
+
+# Set title and layout
+plt.title('Net Loss and Event Count Comparison Across Years', fontsize=14)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+# Display merged DataFrame
+merged_df
+############3
+# Generate sample dataset with Event Count
+data_with_events = {
+    "Year": [2021, 2022, 2023, 2024],
+    "Actual Net Loss": [5000, 7500, 8200, 9000],
+    "VaR 99% Net Loss": [6000, 8000, 8500, 9500],
+    "VaR 95% Net Loss": [5500, 7700, 8300, 9100],
+    "VaR 90% Net Loss": [5200, 7600, 8100, 8900],
+    "Event Count": [100, 120, 140, 160]  # Example event counts
+}
+
+# Create a DataFrame
+net_loss_events_df = pd.DataFrame(data_with_events)
+
+# Plotting
+fig, ax1 = plt.subplots(figsize=(12, 6))
+
+# Plot net loss lines on primary y-axis
+ax1.plot(net_loss_events_df['Year'], net_loss_events_df['Actual Net Loss'], marker='o', label='Actual Net Loss', color='blue')
+ax1.plot(net_loss_events_df['Year'], net_loss_events_df['VaR 99% Net Loss'], marker='s', label='VaR 99% Net Loss', color='red')
+ax1.plot(net_loss_events_df['Year'], net_loss_events_df['VaR 95% Net Loss'], marker='^', label='VaR 95% Net Loss', color='green')
+ax1.plot(net_loss_events_df['Year'], net_loss_events_df['VaR 90% Net Loss'], marker='d', label='VaR 90% Net Loss', color='orange')
+
+# Add labels and grid for primary y-axis
+ax1.set_xlabel('Year', fontsize=12)
+ax1.set_ylabel('Net Loss (in units)', fontsize=12, color='black')
+ax1.tick_params(axis='y', labelcolor='black')
+ax1.grid(visible=True, linestyle='--', alpha=0.6)
+
+# Annotate net loss values
+for index, row in net_loss_events_df.iterrows():
+    ax1.text(row['Year'], row['Actual Net Loss'], f"{row['Actual Net Loss']}", color='blue', fontsize=10, ha='center', va='bottom')
+    ax1.text(row['Year'], row['VaR 99% Net Loss'], f"{row['VaR 99% Net Loss']}", color='red', fontsize=10, ha='center', va='bottom')
+    ax1.text(row['Year'], row['VaR 95% Net Loss'], f"{row['VaR 95% Net Loss']}", color='green', fontsize=10, ha='center', va='bottom')
+    ax1.text(row['Year'], row['VaR 90% Net Loss'], f"{row['VaR 90% Net Loss']}", color='orange', fontsize=10, ha='center', va='bottom')
+
+# Create secondary y-axis for Event Count
+ax2 = ax1.twinx()
+ax2.plot(net_loss_events_df['Year'], net_loss_events_df['Event Count'], marker='x', label='Event Count', color='purple')
+ax2.set_ylabel('Event Count', fontsize=12, color='purple')
+ax2.tick_params(axis='y', labelcolor='purple')
+
+# Annotate event counts
+for index, row in net_loss_events_df.iterrows():
+    ax2.text(row['Year'], row['Event Count'], f"{row['Event Count']}", color='purple', fontsize=10, ha='center', va='bottom')
+
+# Add legends
+fig.legend(loc='upper left', bbox_to_anchor=(0.1, 0.9), fontsize=10)
+
+# Set title and layout
+plt.title('Net Loss and Event Count Comparison Across Years', fontsize=14)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+$$$$$$$$$44
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate sample dataset
+data = {
+    "Year": [2021, 2022, 2023, 2024],
+    "Actual Net Loss": [5000, 7500, 8200, 9000],
+    "VaR 99% Net Loss": [6000, 8000, 8500, 9500],
+    "VaR 95% Net Loss": [5500, 7700, 8300, 9100],
+    "VaR 90% Net Loss": [5200, 7600, 8100, 8900]
+}
+
+# Create a DataFrame
+net_loss_df = pd.DataFrame(data)
+
+# Plotting
+plt.figure(figsize=(12, 6))
+
+# Plot each line
+plt.plot(net_loss_df['Year'], net_loss_df['Actual Net Loss'], marker='o', label='Actual Net Loss', color='blue')
+plt.plot(net_loss_df['Year'], net_loss_df['VaR 99% Net Loss'], marker='s', label='VaR 99% Net Loss', color='red')
+plt.plot(net_loss_df['Year'], net_loss_df['VaR 95% Net Loss'], marker='^', label='VaR 95% Net Loss', color='green')
+plt.plot(net_loss_df['Year'], net_loss_df['VaR 90% Net Loss'], marker='d', label='VaR 90% Net Loss', color='orange')
+
+# Add labels, title, and legend
+plt.xlabel('Year', fontsize=12)
+plt.ylabel('Net Loss (in units)', fontsize=12)
+plt.title('Net Loss Comparison Across Years', fontsize=14)
+plt.xticks(net_loss_df['Year'], fontsize=10)
+plt.yticks(fontsize=10)
+plt.grid(visible=True, linestyle='--', alpha=0.6)
+plt.legend(fontsize=10)
+
+# Annotate values
+for index, row in net_loss_df.iterrows():
+    plt.text(row['Year'], row['Actual Net Loss'], f"{row['Actual Net Loss']}", color='blue', fontsize=10, ha='center', va='bottom')
+    plt.text(row['Year'], row['VaR 99% Net Loss'], f"{row['VaR 99% Net Loss']}", color='red', fontsize=10, ha='center', va='bottom')
+    plt.text(row['Year'], row['VaR 95% Net Loss'], f"{row['VaR 95% Net Loss']}", color='green', fontsize=10, ha='center', va='bottom')
+    plt.text(row['Year'], row['VaR 90% Net Loss'], f"{row['VaR 90% Net Loss']}", color='orange', fontsize=10, ha='center', va='bottom')
+
+# Show the plot
+plt.tight_layout()
+plt.show()
