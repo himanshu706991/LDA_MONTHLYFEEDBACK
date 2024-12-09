@@ -1,4 +1,145 @@
+++++
+In this code I need year on x axis it should come like a year not like 2021.5,202.5 I don't want and also fix limit in both y axis
+ChatGPT said:
+ChatGPT
+To ensure that the year appears as discrete values (i.e., 2021, 2022, etc.) on the x-axis and that both y-axes have fixed limits, you can make the following adjustments:
 
+Set the X-axis to be categorical (so the years are treated as discrete points, not as continuous values).
+Set fixed limits on both y-axes to ensure they have a proper range.
+Here’s the updated code:
+
+Updated Code:
+python
+Copy code
+import matplotlib.pyplot as plt
+
+# Assuming the simulation results are stored in `simulation_results_df`
+
+# Filter out data for plotting
+plot_data = simulation_results_df.groupby('Year').agg(
+    {'Actual Total Net Loss': 'sum', 'VaR Net Loss (99.9%)': 'mean'}).reset_index()
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Plot Total Net Loss (primary y-axis)
+ax1.plot(plot_data['Year'], plot_data['Actual Total Net Loss'], color='b', marker='o', label='Total Net Loss')
+ax1.set_xlabel('Year')
+ax1.set_ylabel('Total Net Loss', color='b')
+ax1.tick_params(axis='y', labelcolor='b')
+
+# Set the limit for the primary y-axis (Total Net Loss)
+ax1.set_ylim([0, plot_data['Actual Total Net Loss'].max() * 1.2])  # Add a margin of 20%
+
+# Create a second y-axis for VaR Net Loss
+ax2 = ax1.twinx()
+ax2.plot(plot_data['Year'], plot_data['VaR Net Loss (99.9%)'], color='r', marker='s', label='VaR Net Loss (99.9%)')
+ax2.set_ylabel('VaR Net Loss (99.9%)', color='r')
+ax2.tick_params(axis='y', labelcolor='r')
+
+# Set the limit for the secondary y-axis (VaR Net Loss)
+ax2.set_ylim([0, plot_data['VaR Net Loss (99.9%)'].max() * 1.2])  # Add a margin of 20%
+
+# Set the x-axis to be discrete (years as categories)
+ax1.set_xticks(plot_data['Year'])  # Use years as discrete ticks
+ax1.set_xticklabels(plot_data['Year'].astype(str))  # Ensure the years are shown as strings
+
+# Add title and legend
+plt.title('Total Net Loss and VaR Net Loss (99.9%) per Year')
+fig.tight_layout()
+
+# Show the plot
+plt.show()
+Key Updates:
+X-Axis as Discrete Years:
+
+ax1.set_xticks(plot_data['Year']): This makes sure the x-axis ticks correspond to each unique year.
+ax1.set_xticklabels(plot_data['Year'].astype(str)): This ensures that the years are displayed as discrete values (e.g., 2021, 2022, etc.).
+Fixed Y-Axis Limits:
+
+ax1.set_ylim([0, plot_data['Actual Total Net Loss'].max() * 1.2]): Sets the primary y-axis (Total Net Loss) with a 20% margin above the maximum value.
+ax2.set_ylim([0, plot_data['VaR Net Loss (99.9%)'].max() * 1.2]): Sets the secondary y-axis (VaR Net Loss) with a 20% margin above the maximum value.
+Expected Outcome:
+The x-axis will display discrete year labels (e.g., 2021, 2022, etc.), not floating-point values like 2021.5.
+Both the Total Net Loss and VaR Net Loss values will have fixed y-axis limits, making it easier to compare the two values across years.
+Let me know if you need further tweaks!
+
+
+
+
+
+
+You said:
+Inam getting x axis .5 interwell yaer I  need only year like 2021,2022,2023
+ChatGPT said:
+ChatGPT
+To ensure the x-axis shows only the year values (e.g., 2021, 2022, 2023) without any fractional intervals (like 2021.5), you need to make sure that matplotlib treats the years as categorical data, not continuous numeric data. You can achieve this by explicitly setting the x-axis to use integer year values.
+
+Here’s the updated solution:
+
+Solution to Ensure Discrete Year Values:
+python
+Copy code
+import matplotlib.pyplot as plt
+
+# Assuming the simulation results are stored in `simulation_results_df`
+
+# Filter out data for plotting
+plot_data = simulation_results_df.groupby('Year').agg(
+    {'Actual Total Net Loss': 'sum', 'VaR Net Loss (99.9%)': 'mean'}).reset_index()
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Plot Total Net Loss (primary y-axis)
+ax1.plot(plot_data['Year'], plot_data['Actual Total Net Loss'], color='b', marker='o', label='Total Net Loss')
+ax1.set_xlabel('Year')
+ax1.set_ylabel('Total Net Loss', color='b')
+ax1.tick_params(axis='y', labelcolor='b')
+
+# Set the limit for the primary y-axis (Total Net Loss)
+ax1.set_ylim([0, plot_data['Actual Total Net Loss'].max() * 1.2])  # Add a margin of 20%
+
+# Create a second y-axis for VaR Net Loss
+ax2 = ax1.twinx()
+ax2.plot(plot_data['Year'], plot_data['VaR Net Loss (99.9%)'], color='r', marker='s', label='VaR Net Loss (99.9%)')
+ax2.set_ylabel('VaR Net Loss (99.9%)', color='r')
+ax2.tick_params(axis='y', labelcolor='r')
+
+# Set the limit for the secondary y-axis (VaR Net Loss)
+ax2.set_ylim([0, plot_data['VaR Net Loss (99.9%)'].max() * 1.2])  # Add a margin of 20%
+
+# Set the x-axis to display years as discrete integer values
+ax1.set_xticks(plot_data['Year'])  # Use years as discrete ticks
+ax1.set_xticklabels(plot_data['Year'].astype(str), rotation=0)  # Ensure years are displayed as strings
+
+# Add title and legend
+plt.title('Total Net Loss and VaR Net Loss (99.9%) per Year')
+fig.tight_layout()
+
+# Show the plot
+plt.show()
+Key Updates:
+Fixing X-Axis to Discrete Years:
+ax1.set_xticks(plot_data['Year']): This ensures that the x-axis uses the exact years in the dataset as discrete ticks (2021, 2022, etc.).
+ax1.set_xticklabels(plot_data['Year'].astype(str), rotation=0): This makes sure that the year labels appear as strings (i.e., '2021', '2022') without fractional values or decimals. The rotation=0 keeps the labels horizontal.
+Expected Outcome:
+The x-axis will only display the years (2021, 2022, 2023, etc.), with no fractional values like 2021.5, 2022.5.
+The plot will have a discrete x-axis with each year corresponding to a point on the graph, making the data easier to interpret.
+Let me know if this resolves the issue or if you need any further adjustments!
+
+
+
+
+
+
+
+
+
+
+ChatGPT 
+
++++
 
 I need grapgh on x axis years and yaxs1 total net loss and y axis2 var net loss with proper legend and label value
 ChatGPT said:
