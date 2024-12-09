@@ -1,0 +1,582 @@
+i need Var for net loss and event counts w r t each business line,year and quarter from scipy.stats import poisson, lognorm
+
+import pandas as pd
+
+import numpy as np
+
+
+
+# Function to calculate VaR for Net Loss using Monte Carlo
+
+def calculate_net_loss_var(frequency_lambda, severity_shape, severity_scale, severity_loc, confidence_level=0.999, n_simulations=10000):
+
+    # Simulate event counts (frequency) using Poisson distribution
+
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+
+    # Simulate severity amounts (loss) using Log-Normal distribution
+
+    simulated_loss_amounts = lognorm.rvs(s=severity_shape, loc=severity_loc, scale=severity_scale, size=n_simulations)
+
+    # Total losses = frequency * severity
+
+    total_losses = simulated_event_counts * simulated_loss_amounts
+
+    # Calculate VaR
+
+    var_value = np.percentile(total_losses, confidence_level * 100)
+
+    return var_value
+
+
+
+# Function to calculate VaR for Event Counts using Monte Carlo
+
+def calculate_event_count_var(frequency_lambda, confidence_level=0.999, n_simulations=10000):
+
+    # Simulate event counts using Poisson distribution
+
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+
+    # Calculate VaR
+
+    var_event_count = np.percentile(simulated_event_counts, confidence_level * 100)
+
+    return var_event_count
+
+
+
+# Prepare results
+
+results = []
+
+
+
+# Define confidence level and number of simulations
+
+confidence_level = 0.999
+
+n_simulations = 10000
+
+
+
+# Loop through each year and business line
+
+for year in range(2021, 2025):
+
+    yearly_data = df[df['Year'] == year]
+
+    
+
+    for business_line in yearly_data['Business Line'].unique():
+
+        # Filter data for the specific year and business line
+
+        bl_data = yearly_data[yearly_data['Business Line'] == business_line]
+
+        
+
+        # Total event counts and net loss
+
+        total_event_count = bl_data.shape[0]
+
+        total_net_loss = bl_data['Net Loss Amount'].sum()
+
+        
+
+        # Frequency parameter (Poisson λ)
+
+        frequency_lambda = total_event_count / 1  # Events per year
+
+        
+
+        # Severity parameters (Log-Normal distribution)
+
+        positive_losses = bl_data[bl_data['Net Loss Amount'] > 0]['Net Loss Amount']
+
+        if positive_losses.empty:
+
+            print(f"No positive losses for {business_line} in {year}. Skipping.")
+
+            continue
+
+        severity_shape, severity_loc, severity_scale = lognorm.fit(positive_losses)
+
+        
+
+        # Calculate VaR for Net Loss
+
+        var_net_loss = calculate_net_loss_var(
+
+            frequency_lambda=frequency_lambda,
+
+            severity_shape=severity_shape,
+
+            severity_scale=severity_scale,
+
+            severity_loc=severity_loc,
+
+            confidence_level=confidence_level,
+
+            n_simulations=n_simulations
+
+        )
+
+        
+
+        # Calculate VaR for Event Count
+
+        var_event_count = calculate_event_count_var(
+
+            frequency_lambda=frequency_lambda,
+
+            confidence_level=confidence_level,
+
+            n_simulations=n_simulations
+
+        )
+
+        
+
+        # Append results
+
+        results.append({
+
+            'Year': year,
+
+            'Business Line': business_line,
+
+            'Total Net Loss': total_net_loss,
+
+            'Total Event Count': total_event_count,
+
+            'VaR Net Loss (99.9%)': var_net_loss,
+
+            'VaR Event Count (99.9%)': var_event_count
+
+        })
+
+
+
+# Convert results to DataFrame
+
+results_df = pd.DataFrame(results)
+
+
+
+# Display results
+
+print(results_df)
+
+ChatGPT said:
+ChatGPT
+This code calculates the Value at Risk (VaR) for both net losses and event counts for each business line across different years, leveraging the Monte Carlo simulation technique with the Poisson and Log-Normal distributions. Here's a breakdown of the code and its components:
+
+Key Components
+Distributions:
+
+Poisson Distribution models the frequency of events (event counts).
+Log-Normal Distribution models the severity of losses (positive net losses).
+Monte Carlo Simulation:
+
+Used to simulate a large number of possible scenarios for event counts and loss amounts.
+Aggregates simulated results to determine the 99.9% VaR (extreme loss thresholds).
+Parameters:
+
+frequency_lambda: Average number of events per year (calculated from historical data).
+severity_shape, severity_loc, severity_scale: Parameters fitted to positive net losses.
+Results Summary:
+
+Total Net Loss: Sum of net losses for each year and business line.
+Total Event Count: Total number of events in the dataset for the specified criteria.
+VaR Net Loss (99.9%): 99.9% quantile of simulated total losses.
+VaR Event Count (99.9%): 99.9% quantile of simulated event counts.
+Steps Performed:
+Filter Data:
+
+Loop over each year and business line to process data specific to that combination.
+Frequency and Severity Calculation:
+
+Compute frequency_lambda from historical event counts.
+Fit a Log-Normal distribution to the positive net losses to estimate severity parameters.
+VaR Computation:
+
+Use custom functions calculate_net_loss_var and calculate_event_count_var to compute VaR values.
+Result Compilation:
+
+Append the computed metrics into a results list, converted into a DataFrame for analysis.
+Output Example
+The resulting DataFrame (results_df) will look like:
+
+Year	Business Line	Total Net Loss	Total Event Count	VaR Net Loss (99.9%)	VaR Event Count (99.9%)
+2021	Retail	-123456.78	250	34567.89	300
+2021	Corporate Banking	-87654.32	150	56789.12	200
+...	...	...	...	...	...
+Next Steps
+Visualize Results:
+
+Create bar charts or heatmaps to show VaR trends across years and business lines.
+Compare total net losses with computed VaR values.
+Error Handling:
+
+Handle cases with insufficient positive net losses for specific business lines or years.
+Validation:
+
+Cross-check simulated results with historical data for reliability.
+Let me know if you'd like additional enhancements or explanations!
+
+
+
+
+
+
+You said:
+year quaetrter bsuiness line total netloss, total event count var netloss varevent counst
+ChatGPT said:
+ChatGPT
+To include quarterly calculations and present the results by year, quarter, and business line, we can modify the script as follows:
+
+Updated Script for Year-Quarter Analysis
+python
+Copy code
+import pandas as pd
+import numpy as np
+from scipy.stats import poisson, lognorm
+
+# Function to calculate VaR for Net Loss using Monte Carlo
+def calculate_net_loss_var(frequency_lambda, severity_shape, severity_scale, severity_loc, confidence_level=0.999, n_simulations=10000):
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+    simulated_loss_amounts = lognorm.rvs(s=severity_shape, loc=severity_loc, scale=severity_scale, size=n_simulations)
+    total_losses = simulated_event_counts * simulated_loss_amounts
+    var_value = np.percentile(total_losses, confidence_level * 100)
+    return var_value
+
+# Function to calculate VaR for Event Counts using Monte Carlo
+def calculate_event_count_var(frequency_lambda, confidence_level=0.999, n_simulations=10000):
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+    var_event_count = np.percentile(simulated_event_counts, confidence_level * 100)
+    return var_event_count
+
+# Add Quarter column to the DataFrame
+df['Quarter'] = df['Date'].dt.to_period('Q')
+
+# Prepare results
+results = []
+
+# Define confidence level and number of simulations
+confidence_level = 0.999
+n_simulations = 10000
+
+# Loop through each year, quarter, and business line
+for year in range(2021, 2025):
+    yearly_data = df[df['Year'] == year]
+    
+    for quarter in yearly_data['Quarter'].unique():
+        quarterly_data = yearly_data[yearly_data['Quarter'] == quarter]
+        
+        for business_line in quarterly_data['Business Line'].unique():
+            bl_data = quarterly_data[quarterly_data['Business Line'] == business_line]
+            
+            total_event_count = bl_data.shape[0]
+            total_net_loss = bl_data['Net Loss Amount'].sum()
+            
+            frequency_lambda = total_event_count / 1  # Events per quarter
+            
+            positive_losses = bl_data[bl_data['Net Loss Amount'] > 0]['Net Loss Amount']
+            if positive_losses.empty:
+                print(f"No positive losses for {business_line} in {quarter} {year}. Skipping.")
+                continue
+            
+            severity_shape, severity_loc, severity_scale = lognorm.fit(positive_losses)
+            
+            # Calculate VaR for Net Loss
+            var_net_loss = calculate_net_loss_var(
+                frequency_lambda=frequency_lambda,
+                severity_shape=severity_shape,
+                severity_scale=severity_scale,
+                severity_loc=severity_loc,
+                confidence_level=confidence_level,
+                n_simulations=n_simulations
+            )
+            
+            # Calculate VaR for Event Count
+            var_event_count = calculate_event_count_var(
+                frequency_lambda=frequency_lambda,
+                confidence_level=confidence_level,
+                n_simulations=n_simulations
+            )
+            
+            # Append results
+            results.append({
+                'Year': year,
+                'Quarter': quarter,
+                'Business Line': business_line,
+                'Total Net Loss': total_net_loss,
+                'Total Event Count': total_event_count,
+                'VaR Net Loss (99.9%)': var_net_loss,
+                'VaR Event Count (99.9%)': var_event_count
+            })
+
+# Convert results to DataFrame
+results_df = pd.DataFrame(results)
+
+# Display results
+print(results_df)
+Output Columns
+The resulting results_df DataFrame will contain:
+
+Year: Year of the data.
+Quarter: Quarter of the year (e.g., 2024Q1).
+Business Line: The business segment.
+Total Net Loss: Sum of net losses for that quarter and business line.
+Total Event Count: Count of events for that quarter and business line.
+VaR Net Loss (99.9%): Estimated Value at Risk for net loss at 99.9% confidence.
+VaR Event Count (99.9%): Estimated Value at Risk for event counts at 99.9% confidence.
+Sample Output
+Year	Quarter	Business Line	Total Net Loss	Total Event Count	VaR Net Loss (99.9%)	VaR Event Count (99.9%)
+2021	2021Q1	Retail	-123456.78	150	34567.89	200
+2021	2021Q2	Corporate Banking	-87654.32	100	56789.12	150
+2021	2021Q3	Investment Banking	-65432.12	200	45678.34	180
+Enhancements
+Visualization:
+Use seaborn/matplotlib to visualize quarterly trends.
+Validation:
+Ensure robust handling for quarters with no events or losses.
+Performance:
+Optimize filtering logic for larger datasets.
+Let me know if you need further refinement!
+
+
+
+
+
+
+You said:
+add predictioon for next 2025 q1
+ChatGPT said:
+ChatGPT
+To predict 2025 Q1 values for total net loss, total event count, and VaR metrics, we can leverage historical quarterly data using a time series forecasting method such as ARIMA or a machine learning model like XGBoost. Here’s how we can extend the script:
+
+Updated Script with Prediction for 2025 Q1
+python
+Copy code
+import pandas as pd
+import numpy as np
+from scipy.stats import poisson, lognorm
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+# Function to calculate VaR for Net Loss using Monte Carlo
+def calculate_net_loss_var(frequency_lambda, severity_shape, severity_scale, severity_loc, confidence_level=0.999, n_simulations=10000):
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+    simulated_loss_amounts = lognorm.rvs(s=severity_shape, loc=severity_loc, scale=severity_scale, size=n_simulations)
+    total_losses = simulated_event_counts * simulated_loss_amounts
+    var_value = np.percentile(total_losses, confidence_level * 100)
+    return var_value
+
+# Function to calculate VaR for Event Counts using Monte Carlo
+def calculate_event_count_var(frequency_lambda, confidence_level=0.999, n_simulations=10000):
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+    var_event_count = np.percentile(simulated_event_counts, confidence_level * 100)
+    return var_event_count
+
+# Add Quarter column to the DataFrame
+df['Quarter'] = df['Date'].dt.to_period('Q')
+
+# Prepare results
+results = []
+
+# Define confidence level and number of simulations
+confidence_level = 0.999
+n_simulations = 10000
+
+# Loop through each year, quarter, and business line
+for year in range(2021, 2025):
+    yearly_data = df[df['Year'] == year]
+    
+    for quarter in yearly_data['Quarter'].unique():
+        quarterly_data = yearly_data[yearly_data['Quarter'] == quarter]
+        
+        for business_line in quarterly_data['Business Line'].unique():
+            bl_data = quarterly_data[quarterly_data['Business Line'] == business_line]
+            
+            total_event_count = bl_data.shape[0]
+            total_net_loss = bl_data['Net Loss Amount'].sum()
+            
+            frequency_lambda = total_event_count / 1  # Events per quarter
+            
+            positive_losses = bl_data[bl_data['Net Loss Amount'] > 0]['Net Loss Amount']
+            if positive_losses.empty:
+                print(f"No positive losses for {business_line} in {quarter} {year}. Skipping.")
+                continue
+            
+            severity_shape, severity_loc, severity_scale = lognorm.fit(positive_losses)
+            
+            # Calculate VaR for Net Loss
+            var_net_loss = calculate_net_loss_var(
+                frequency_lambda=frequency_lambda,
+                severity_shape=severity_shape,
+                severity_scale=severity_scale,
+                severity_loc=severity_loc,
+                confidence_level=confidence_level,
+                n_simulations=n_simulations
+            )
+            
+            # Calculate VaR for Event Count
+            var_event_count = calculate_event_count_var(
+                frequency_lambda=frequency_lambda,
+                confidence_level=confidence_level,
+                n_simulations=n_simulations
+            )
+            
+            # Append results
+            results.append({
+                'Year': year,
+                'Quarter': quarter,
+                'Business Line': business_line,
+                'Total Net Loss': total_net_loss,
+                'Total Event Count': total_event_count,
+                'VaR Net Loss (99.9%)': var_net_loss,
+                'VaR Event Count (99.9%)': var_event_count
+            })
+
+# Convert results to DataFrame
+results_df = pd.DataFrame(results)
+
+# Prepare data for time series forecasting
+forecast_data = results_df.groupby(['Quarter', 'Business Line']).sum().reset_index()
+
+# Function for predicting 2025 Q1
+def forecast_next_quarter(data, business_line, metric):
+    # Filter historical data for the business line
+    ts_data = data[data['Business Line'] == business_line].sort_values('Quarter')
+    ts_data.set_index('Quarter', inplace=True)
+    
+    # Initialize and fit the model
+    model = ExponentialSmoothing(ts_data[metric], seasonal='add', seasonal_periods=4)
+    fitted_model = model.fit()
+    
+    # Forecast for 2025 Q1
+    forecast = fitted_model.forecast(1)
+    return forecast.values[0]
+
+# Forecast for each business line
+forecast_results = []
+for business_line in results_df['Business Line'].unique():
+    total_net_loss_2025Q1 = forecast_next_quarter(forecast_data, business_line, 'Total Net Loss')
+    total_event_count_2025Q1 = forecast_next_quarter(forecast_data, business_line, 'Total Event Count')
+    
+    # Reuse historical distribution parameters for VaR estimation
+    last_bl_data = df[df['Business Line'] == business_line].iloc[-1]
+    frequency_lambda = total_event_count_2025Q1 / 1
+    severity_shape, severity_loc, severity_scale = lognorm.fit(last_bl_data[last_bl_data['Net Loss Amount'] > 0])
+    
+    var_net_loss_2025Q1 = calculate_net_loss_var(
+        frequency_lambda=frequency_lambda,
+        severity_shape=severity_shape,
+        severity_scale=severity_scale,
+        severity_loc=severity_loc,
+        confidence_level=confidence_level,
+        n_simulations=n_simulations
+    )
+    var_event_count_2025Q1 = calculate_event_count_var(
+        frequency_lambda=frequency_lambda,
+        confidence_level=confidence_level,
+        n_simulations=n_simulations
+    )
+    
+    forecast_results.append({
+        'Year': 2025,
+        'Quarter': '2025Q1',
+        'Business Line': business_line,
+        'Total Net Loss': total_net_loss_2025Q1,
+        'Total Event Count': total_event_count_2025Q1,
+        'VaR Net Loss (99.9%)': var_net_loss_2025Q1,
+        'VaR Event Count (99.9%)': var_event_count_2025Q1
+    })
+
+# Combine results
+forecast_df = pd.DataFrame(forecast_results)
+results_df = pd.concat([results_df, forecast_df], ignore_index=True)
+
+# Display final results
+print(results_df)
+Explanation
+Historical Data Preparation:
+
+Aggregate the data by Quarter and Business Line.
+Summarize metrics like Total Net Loss and Total Event Count.
+Time Series Model:
+
+Use Exponential Smoothing to predict values for Total Net Loss and Total Event Count.
+Forecast for VaR Metrics:
+
+Use the latest historical distribution parameters (severity_shape, severity_loc, severity_scale) for Net Loss.
+Estimate VaR for 2025 Q1 using simulated data based on predicted values.
+Output Sample
+The resulting DataFrame (results_df) will include rows for 2025Q1:
+
+Year	Quarter	Business Line	Total Net Loss	Total Event Count	VaR Net Loss (99.9%)	VaR Event Count (99.9%)
+2025	2025Q1	Retail	-145000.34	175	37000.45	220
+2025	2025Q1	Corporate Banking	-85000.67	90	59000.12	130
+Let me know if you'd like further refinements!
+
+
+
+
+
+
+You said:
+do for 2024 q4 prediction for total loss and event counts but also maintained actual total netloss and actual total event counts in output
+ChatGPT said:
+ChatGPT
+Here’s an updated script that includes a prediction for 2024 Q4 while maintaining the actual total net loss and total event counts for comparison:
+
+Updated Script with Actual and Predicted Values
+python
+Copy code
+import pandas as pd
+import numpy as np
+from scipy.stats import poisson, lognorm
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+# Function to calculate VaR for Net Loss using Monte Carlo
+def calculate_net_loss_var(frequency_lambda, severity_shape, severity_scale, severity_loc, confidence_level=0.999, n_simulations=10000):
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+    simulated_loss_amounts = lognorm.rvs(s=severity_shape, loc=severity_loc, scale=severity_scale, size=n_simulations)
+    total_losses = simulated_event_counts * simulated_loss_amounts
+    var_value = np.percentile(total_losses, confidence_level * 100)
+    return var_value
+
+# Function to calculate VaR for Event Counts using Monte Carlo
+def calculate_event_count_var(frequency_lambda, confidence_level=0.999, n_simulations=10000):
+    simulated_event_counts = poisson.rvs(mu=frequency_lambda, size=n_simulations)
+    var_event_count = np.percentile(simulated_event_counts, confidence_level * 100)
+    return var_event_count
+
+# Add Quarter column to the DataFrame
+df['Quarter'] = df['Date'].dt.to_period('Q')
+
+# Prepare results
+results = []
+
+# Define confidence level and number of simulations
+confidence_level = 0.999
+n_simulations = 10000
+
+# Loop through each year, quarter, and business line
+for year in range(2021, 2025):
+    yearly_data = df[df['Year'] == year]
+    
+    for quarter in yearly_data['Quarter'].unique():
+        quarterly_data = yearly_data[yearly_data['Quarter'] == quarter]
+        
+        for business_line in quarterly_data['Business Line'].unique():
+            bl_data = quarterly_data[quarterly_data['Business Line'] == business_line]
+            
+            total_event_count = bl_data.shape[0]
+            total_net_loss = bl_data['Net Loss Amount'].sum()
+            
+            frequency_lambda = total_event_count / 1  # Events per quarter
+            
+            positive_losses = bl_data[bl_data['Net Loss Amount'] > 0]['Net Loss Amount']
+            if 
